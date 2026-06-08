@@ -55,6 +55,14 @@ Search the Q / QAQ brain for the latest customer context.
 What notes in the Q brain mention the onboarding workflow?
 ```
 
+To verify from a terminal:
+
+```powershell
+codex mcp list
+```
+
+You should see `rockaway-q`.
+
 ## Need A Token?
 
 Ask the Rockaway brain admin for a Rockaway Q / QAQ bearer token. You also need access to the private network where `100.102.180.108` is reachable.
