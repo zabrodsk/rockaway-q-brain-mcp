@@ -20,11 +20,18 @@ Good user prompts include:
 
 ## Hidden Agent Instructions
 
-Use only the `rockaway-q` MCP. Stay inside the Rockaway Q / QAQ brain unless the user explicitly asks for cross-brain context.
+Use the `rockaway-q-qmd` MCP first for broad semantic recall. Use only collection `rockaway-q`.
 
-Start every normal lookup with `memory_lookup`.
+Then use the `rockaway-q` MCP for canonical page expansion, links, backlinks, stats, and GBrain fallback lookup. Stay inside the Rockaway Q / QAQ brain unless the user explicitly asks for cross-brain context.
 
-Use `get_page` only for the strongest matches when full detail is useful. Use `get_links` and `get_backlinks` only when ownership, relationship, or graph context matters.
+Default retrieval order:
+
+1. Call `rockaway-q-qmd.status` if connection/index state is uncertain.
+2. Call `rockaway-q-qmd.query` with `collections: ["rockaway-q"]`; use both exact keywords and natural-language intent when useful.
+3. Call `rockaway-q-qmd.get` for the best source before answering factual questions.
+4. Call `rockaway-q.get_page` for the strongest matching canonical slugs when full detail is useful.
+5. Use `rockaway-q.get_links` and `rockaway-q.get_backlinks` only when ownership, relationship, or graph context matters.
+6. Use `rockaway-q.memory_lookup` only as a GBrain fallback if native QMD is unavailable or weak.
 
 Never write to the brain. Never print or store bearer tokens.
 

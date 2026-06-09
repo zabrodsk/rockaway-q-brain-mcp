@@ -20,6 +20,7 @@ This one setup gives you both pieces:
 ```text
 1. The read-only Rockaway Q / QAQ brain connection.
 2. The Rockaway QBrain skill.
+3. A separate read-only QMD search connection for fast semantic recall.
 ```
 
 After setup, the skill command is:
@@ -60,9 +61,13 @@ After setup finishes, restart Claude Code or Codex if it was already open.
 MCP name: rockaway-q
 MCP URL:  http://100.102.180.108:8788/rockaway-q/mcp
 Access:   read-only
+
+QMD MCP name: rockaway-q-qmd
+QMD MCP URL:  https://clawdbot--mac-mini.taild9e247.ts.net:8444/mcp
+QMD collection: rockaway-q
 ```
 
-The brain connection is read-only. It can help answer questions, summarize context, and enrich CSVs, but it cannot edit the brain.
+The brain and QMD connections are read-only. QMD search runs as a separate Mac mini QMD MCP; no local QMD install is needed. Existing GBrain MCP remains canonical for page expansion, links, backlinks, and stats.
 
 ## How To Use It
 
@@ -100,7 +105,7 @@ To verify from a terminal:
 codex mcp list
 ```
 
-You should see `rockaway-q`.
+You should see `rockaway-q` and `rockaway-q-qmd`.
 
 ## Need A Token?
 
