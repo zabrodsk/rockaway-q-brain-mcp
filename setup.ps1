@@ -4,7 +4,7 @@ $TeamLabel = "Rockaway Q / QAQ"
 $McpName = "rockaway-q"
 $McpUrl = "http://100.102.180.108:8788/rockaway-q/mcp"
 $TokenEnv = "ROCKAWAY_Q_MCP_TOKEN"
-$SkillName = "rockaway-qbrain-memory-lookup"
+$SkillName = "rockaway-qbrain"
 
 if (Get-Variable PSNativeCommandUseErrorActionPreference -Scope Global -ErrorAction SilentlyContinue) {
   $global:PSNativeCommandUseErrorActionPreference = $false
@@ -60,7 +60,7 @@ function Set-CodexMcpConfig {
 function Install-MemoryLookupSkill {
   $Source = Join-Path $PSScriptRoot "skills\$SkillName"
   if (-not (Test-Path (Join-Path $Source "SKILL.md"))) {
-    Write-Host "Memory lookup skill not found at: $Source"
+    Write-Host "Rockaway brain skill not found at: $Source"
     return
   }
 
@@ -72,7 +72,7 @@ function Install-MemoryLookupSkill {
     }
     Copy-Item -Recurse -Path $Source -Destination $Dest
   }
-  Write-Host "Memory lookup skill installed: $SkillName"
+  Write-Host "Rockaway brain skill installed: $SkillName"
 }
 
 Write-Host ""
@@ -127,6 +127,6 @@ Write-Host "Token saved to your Windows user environment variable: $TokenEnv"
 Write-Host "Restart Claude Code or Codex if they were already open."
 Write-Host ""
 Write-Host "Try asking:"
-Write-Host "  Use the Rockaway QBrain memory lookup skill for this project."
-Write-Host "  For each CSV row, call memory_lookup first, then get_page only for the strongest matches."
+Write-Host "  Use the Rockaway brain to answer this: what do we know about this project?"
+Write-Host "  Use the Rockaway brain to enrich this CSV."
 Write-Host ""
