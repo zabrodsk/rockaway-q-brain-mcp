@@ -11,7 +11,7 @@ What open blockers do we have around this workflow?
 Which pages mention this initiative?
 ```
 
-This repository is only for the MCP connection. It does not install any extra workflow.
+This repository installs the MCP connection plus a small memory lookup skill that tells agents to call `memory_lookup` first.
 
 ## Install On Windows
 
@@ -41,7 +41,8 @@ MCP URL:  http://100.102.180.108:8788/rockaway-q/mcp
 Access:   read-only
 ```
 
-Available brain tools include search, query, page reads, links, backlinks, and stats. The MCP cannot edit the brain.
+Available brain tools include `memory_lookup`, `brain_help`, search, query, page reads, links, backlinks, QMD deeper retrieval, and stats. The MCP cannot edit the brain.
+For speed, agents should use `memory_lookup` first. It uses the Mac mini's sanitized Q / QAQ QMD index first, then falls back to GBrain.
 
 ## How To Use It
 
@@ -54,6 +55,14 @@ Use the Rockaway Q brain to summarize what we know about this project.
 Search the Q / QAQ brain for the latest customer context.
 What notes in the Q brain mention the onboarding workflow?
 ```
+
+For CSV or spreadsheet lookup, tell Codex or Claude:
+
+```text
+Use the Rockaway memory lookup skill for this team. For each CSV row, call memory_lookup first, then get_page only for the strongest matches.
+```
+
+Expected output columns: `row_id`, `query`, `matched_pages`, `confidence`, `summary`, `recommended_next_step`, `source_slugs`.
 
 To verify from a terminal:
 
