@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $TeamLabel = "Rockaway Q / QAQ"
 $McpName = "rockaway-q"
-$McpUrl = "http://100.102.180.108:8788/rockaway-q/mcp"
+$McpUrl = "http://clawdbot--mac-mini.taild9e247.ts.net:8788/rockaway-q/mcp"
 $QmdMcpName = "rockaway-q-qmd"
 $QmdMcpUrl = "https://clawdbot--mac-mini.taild9e247.ts.net:8444/mcp"
 $TokenEnv = "ROCKAWAY_Q_MCP_TOKEN"

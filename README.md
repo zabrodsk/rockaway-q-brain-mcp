@@ -59,7 +59,7 @@ After setup finishes, restart Claude Code or Codex if it was already open.
 
 ```text
 MCP name: rockaway-q
-MCP URL:  http://100.102.180.108:8788/rockaway-q/mcp
+MCP URL:  http://clawdbot--mac-mini.taild9e247.ts.net:8788/rockaway-q/mcp
 Access:   read-only
 
 QMD MCP name: rockaway-q-qmd
@@ -109,7 +109,19 @@ You should see `rockaway-q` and `rockaway-q-qmd`.
 
 ## Need A Token?
 
-Ask the Rockaway brain admin for a Rockaway Q / QAQ bearer token. You also need access to the private network where `100.102.180.108` is reachable.
+Ask the Rockaway brain admin for a Rockaway Q / QAQ bearer token. You also need to be on the Rockaway Tailscale network so `clawdbot--mac-mini.taild9e247.ts.net` is reachable.
+
+## Troubleshooting
+
+If `codex mcp list` or Claude Code shows `rockaway-q` failing to start (HTTP 404
+or a connection error), the brain connection on the host is down — this is not a
+problem with your install. The `rockaway-q-qmd` search connection runs separately
+and is usually unaffected, so semantic search keeps working. Ask the Rockaway
+brain admin to confirm the host brain services are running, then fully quit and
+reopen Codex or Claude Code.
+
+The `linear` MCP is independent of this toolkit. If it reports "not logged in,"
+run `codex mcp login linear`.
 
 ## Setup Guide
 
