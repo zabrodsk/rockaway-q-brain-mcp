@@ -3,7 +3,7 @@ set -euo pipefail
 
 TEAM_LABEL="Rockaway Q / QAQ"
 MCP_NAME="rockaway-q"
-MCP_URL="http://100.102.180.108:8788/rockaway-q/mcp"
+MCP_URL="http://clawdbot--mac-mini.taild9e247.ts.net:8788/rockaway-q/mcp"
 QMD_MCP_NAME="rockaway-q-qmd"
 QMD_MCP_URL="https://clawdbot--mac-mini.taild9e247.ts.net:8444/mcp"
 TOKEN_ENV="ROCKAWAY_Q_MCP_TOKEN"
