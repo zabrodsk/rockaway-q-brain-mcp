@@ -69,6 +69,8 @@ QMD collection: rockaway-q
 
 The brain and QMD connections are read-only. QMD search runs as a separate Mac mini QMD MCP; no local QMD install is needed. Existing GBrain MCP remains canonical for page expansion, links, backlinks, and stats.
 
+The setup writes the Codex (`~/.codex/config.toml`) and Claude (`~/.claude.json`, user scope) config files directly, so it works whether or not the `codex` / `claude` CLIs are installed — including the Claude desktop app's agent / Cowork mode. The classic Claude desktop *chat* MCP panel (`claude_desktop_config.json`) is separate and not configured by this installer.
+
 ## How To Use It
 
 After setup, use this skill command:

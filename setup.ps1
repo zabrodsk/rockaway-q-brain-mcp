@@ -90,6 +90,35 @@ function Set-CodexMcpConfigNoAuth {
   Write-Host "Codex config ensured: $ConfigPath"
 }
 
+function Set-ClaudeMcpConfig {
+  param(
+    [string]$ServerName,
+    [string]$Url,
+    [string]$Token
+  )
+
+  # Write straight into ~/.claude.json (user scope) — the file Claude Code and the
+  # Claude desktop app's agent/Cowork mode both read — so setup works without the
+  # `claude` CLI. Works on Windows PowerShell 5.1 and PowerShell 7+.
+  $ConfigPath = Join-Path $HOME ".claude.json"
+  $Data = $null
+  if (Test-Path $ConfigPath) {
+    try { $Data = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json } catch { $Data = $null }
+  }
+  if ($null -eq $Data) { $Data = [pscustomobject]@{} }
+  if (-not ($Data.PSObject.Properties.Name -contains 'mcpServers') -or $null -eq $Data.mcpServers) {
+    $Data | Add-Member -NotePropertyName 'mcpServers' -NotePropertyValue ([pscustomobject]@{}) -Force
+  }
+  $Entry = [ordered]@{ type = 'http'; url = $Url }
+  if (-not [string]::IsNullOrWhiteSpace($Token)) {
+    $Entry['headers'] = [ordered]@{ Authorization = "Bearer $Token" }
+  }
+  $Data.mcpServers | Add-Member -NotePropertyName $ServerName -NotePropertyValue ([pscustomobject]$Entry) -Force
+  $Json = $Data | ConvertTo-Json -Depth 20
+  [System.IO.File]::WriteAllText($ConfigPath, $Json, [System.Text.UTF8Encoding]::new($false))
+  Write-Host "Claude config ensured (~/.claude.json): $ServerName"
+}
+
 function Install-RockawayBrainSkill {
   $Source = $null
   $TempRoot = $null
@@ -145,16 +174,15 @@ if ([string]::IsNullOrWhiteSpace($Token)) {
   Install-RockawayBrainSkill
   $Claude = Get-Command claude -ErrorAction SilentlyContinue
   if ($Claude) {
-    Invoke-NativeQuiet "claude" @("mcp", "remove", $QmdMcpName)
-    & claude mcp add --transport http $QmdMcpName $QmdMcpUrl
-    Write-Host "Claude Code QMD MCP configured: $QmdMcpName"
+    Invoke-NativeQuiet "claude" @("mcp", "remove", $QmdMcpName, "--scope", "user")
+    Invoke-NativeQuiet "claude" @("mcp", "add", $QmdMcpName, "--scope", "user", "--transport", "http", $QmdMcpUrl)
   }
+  Set-ClaudeMcpConfig $QmdMcpName $QmdMcpUrl
 
   $Codex = Get-Command codex -ErrorAction SilentlyContinue
   if ($Codex) {
     Invoke-NativeQuiet "codex" @("mcp", "remove", $QmdMcpName)
-    & codex mcp add $QmdMcpName --url $QmdMcpUrl
-    Write-Host "Codex QMD MCP configured: $QmdMcpName"
+    Invoke-NativeQuiet "codex" @("mcp", "add", $QmdMcpName, "--url", $QmdMcpUrl)
   }
 
   Set-CodexMcpConfigNoAuth $QmdMcpName $QmdMcpUrl
@@ -170,15 +198,13 @@ Set-Item -Path "Env:$TokenEnv" -Value $Token
 
 $Claude = Get-Command claude -ErrorAction SilentlyContinue
 if ($Claude) {
-  Invoke-NativeQuiet "claude" @("mcp", "remove", $McpName)
-  & claude mcp add --transport http $McpName $McpUrl --header "Authorization: Bearer $Token"
-  Write-Host "Claude Code MCP configured: $McpName"
-  Invoke-NativeQuiet "claude" @("mcp", "remove", $QmdMcpName)
-  & claude mcp add --transport http $QmdMcpName $QmdMcpUrl
-  Write-Host "Claude Code QMD MCP configured: $QmdMcpName"
-} else {
-  Write-Host "Claude Code CLI not found; skipped Claude Code MCP setup."
+  Invoke-NativeQuiet "claude" @("mcp", "remove", $McpName, "--scope", "user")
+  Invoke-NativeQuiet "claude" @("mcp", "add", $McpName, "--scope", "user", "--transport", "http", $McpUrl, "--header", "Authorization: Bearer $Token")
+  Invoke-NativeQuiet "claude" @("mcp", "remove", $QmdMcpName, "--scope", "user")
+  Invoke-NativeQuiet "claude" @("mcp", "add", $QmdMcpName, "--scope", "user", "--transport", "http", $QmdMcpUrl)
 }
+Set-ClaudeMcpConfig $McpName $McpUrl $Token
+Set-ClaudeMcpConfig $QmdMcpName $QmdMcpUrl
 
 $Codex = Get-Command codex -ErrorAction SilentlyContinue
 if ($Codex) {
