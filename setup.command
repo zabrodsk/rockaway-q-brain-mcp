@@ -54,18 +54,51 @@ path.write_text(text, encoding="utf-8")
 PY
 }
 
+ensure_claude_mcp_config() {
+  # Write the server straight into ~/.claude.json (user scope). This is the file
+  # Claude Code AND the Claude desktop app's agent/Cowork mode both read, so setup
+  # works even when the `claude` CLI is not installed.
+  local server_name="$1"
+  local url="$2"
+  local token="${3:-}"
+  python3 - "$server_name" "$url" "$token" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+name, url, token = sys.argv[1], sys.argv[2], sys.argv[3]
+path = Path.home() / ".claude.json"
+try:
+    data = json.loads(path.read_text()) if path.exists() else {}
+except Exception:
+    data = {}
+if not isinstance(data, dict):
+    data = {}
+servers = data.get("mcpServers")
+if not isinstance(servers, dict):
+    servers = {}
+    data["mcpServers"] = servers
+entry = {"type": "http", "url": url}
+if token:
+    entry["headers"] = {"Authorization": f"Bearer {token}"}
+servers[name] = entry
+path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+PY
+}
+
 configure_qmd_mcp() {
   if command -v claude >/dev/null 2>&1; then
-    claude mcp remove "$QMD_MCP_NAME" >/dev/null 2>&1 || true
-    claude mcp add "$QMD_MCP_NAME" --transport http "$QMD_MCP_URL"
-    echo "Claude Code QMD MCP configured: $QMD_MCP_NAME"
+    claude mcp remove "$QMD_MCP_NAME" --scope user >/dev/null 2>&1 || true
+    claude mcp add "$QMD_MCP_NAME" --scope user --transport http "$QMD_MCP_URL" >/dev/null 2>&1 || true
   fi
+  ensure_claude_mcp_config "$QMD_MCP_NAME" "$QMD_MCP_URL"
+  echo "Claude QMD MCP configured (~/.claude.json): $QMD_MCP_NAME"
   if command -v codex >/dev/null 2>&1; then
     codex mcp remove "$QMD_MCP_NAME" >/dev/null 2>&1 || true
-    codex mcp add "$QMD_MCP_NAME" --url "$QMD_MCP_URL"
-    echo "Codex QMD MCP configured: $QMD_MCP_NAME"
+    codex mcp add "$QMD_MCP_NAME" --url "$QMD_MCP_URL" >/dev/null 2>&1 || true
   fi
   ensure_codex_mcp_config "$QMD_MCP_NAME" "$QMD_MCP_URL"
+  echo "Codex QMD MCP configured (~/.codex/config.toml): $QMD_MCP_NAME"
 }
 
 echo
@@ -106,12 +139,11 @@ if [[ -f "$HOME/.zshrc" ]] && ! grep -q "$ENV_FILE" "$HOME/.zshrc"; then
 fi
 
 if command -v claude >/dev/null 2>&1; then
-  claude mcp remove "$MCP_NAME" >/dev/null 2>&1 || true
-  claude mcp add "$MCP_NAME" --transport http "$MCP_URL" --header "Authorization: Bearer $TOKEN"
-  echo "Claude Code MCP configured: $MCP_NAME"
-else
-  echo "Claude Code CLI not found; skipped Claude Code MCP setup."
+  claude mcp remove "$MCP_NAME" --scope user >/dev/null 2>&1 || true
+  claude mcp add "$MCP_NAME" --scope user --transport http "$MCP_URL" --header "Authorization: Bearer $TOKEN" >/dev/null 2>&1 || true
 fi
+ensure_claude_mcp_config "$MCP_NAME" "$MCP_URL" "$TOKEN"
+echo "Claude MCP configured (~/.claude.json): $MCP_NAME"
 
 if command -v codex >/dev/null 2>&1; then
   codex mcp remove "$MCP_NAME" >/dev/null 2>&1 || true
